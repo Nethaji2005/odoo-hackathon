@@ -1,0 +1,22 @@
+{
+  "name": "dayflow-backend",
+  "version": "1.0.0",
+  "description": "Dayflow HRMS backend — Odoo x NMIT Hackathon 2026",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "5.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.3",
+    "zod": "^4.4.3"
+  }
+}

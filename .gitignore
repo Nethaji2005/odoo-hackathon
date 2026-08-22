@@ -1,0 +1,7 @@
+# Root .gitignore — covers both workspaces
+node_modules/
+.env
+*.local
+dist/
+dist-ssr/
+.DS_Store

@@ -3,21 +3,24 @@
 const mongoose = require('mongoose');
 
 /**
- * Establishes a connection to MongoDB Atlas using the URI stored in the
- * MONGODB_URI environment variable.
- *
- * Mongoose 9.x has connection events built in. We log success/error here
- * and let the caller decide whether to abort on failure.
+ * Connects to MongoDB Atlas using MONGODB_URI from environment variables.
+ * Validates that the URI is set, logs success, and exits the process on failure.
  */
 async function connectDB() {
   const uri = process.env.MONGODB_URI;
 
   if (!uri) {
-    throw new Error('MONGODB_URI is not defined in environment variables');
+    console.error('✖  MONGODB_URI is not defined in environment variables');
+    process.exit(1);
   }
 
-  await mongoose.connect(uri);
-  console.log(`✅  MongoDB connected: ${mongoose.connection.host}`);
+  try {
+    const conn = await mongoose.connect(uri);
+    console.log(`✔  MongoDB connected: ${conn.connection.host}`);
+  } catch (err) {
+    console.error(`✖  MongoDB connection error: ${err.message}`);
+    process.exit(1);
+  }
 }
 
 module.exports = { connectDB };

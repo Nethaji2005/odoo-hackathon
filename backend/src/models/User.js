@@ -1,13 +1,13 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 /**
- * Supported roles within the Dayflow system.
- * - employee : standard staff member
- * - hr       : human resources personnel with elevated privileges
+ * Supported roles within the Dayflow HRMS system.
+ * Used for role-based authorization across all modules.
  */
-const ROLES = ['employee', 'hr'];
+const ROLES = ['employee', 'admin', 'hr'];
 
 const userSchema = new mongoose.Schema(
   {
@@ -30,8 +30,8 @@ const userSchema = new mongoose.Schema(
 
     /**
      * Stored as a bcrypt hash — NEVER stored or returned as plain text.
-     * The `select: false` option ensures this field is omitted from all
-     * query results unless explicitly requested with `.select('+password')`.
+     * select: false ensures this field is omitted from all query results
+     * unless explicitly requested with .select('+password').
      */
     password: {
       type: String,
@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema(
       default: 'employee',
     },
 
+    department: {
+      type: String,
+      trim: true,
+    },
+
     /** Soft-disable an account without deleting it. */
     isActive: {
       type: Boolean,
@@ -55,10 +60,22 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // adds createdAt and updatedAt automatically
+    timestamps: true,
     versionKey: false,
   }
 );
+
+// ── Hash password before saving ───────────────────────────────────────────────
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+// ── Instance method: compare plain password against stored hash ───────────────
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 /**
  * Return a safe public representation of the user — password hash excluded.

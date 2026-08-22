@@ -1,11 +1,31 @@
 'use strict';
 
 const express = require('express');
+const cors = require('cors');
 const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
 // ── Global middleware ───────────────────────────────────────────────────────
+
+/**
+ * CORS — must be the first middleware so preflight OPTIONS requests are
+ * resolved before body parsing or route matching.
+ *
+ * Origin is driven by the FRONTEND_URL environment variable so it can be
+ * changed per environment without touching source code.
+ * Falls back to http://localhost:5173 (Vite default) in development.
+ */
+const corsOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+app.use(
+  cors({
+    origin: corsOrigin,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 
 /** Parse incoming JSON request bodies. */
 app.use(express.json());
